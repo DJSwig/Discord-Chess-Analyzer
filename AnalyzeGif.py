@@ -31,7 +31,8 @@ class GIFAnalyzer:
         gif = Image.open(gif_path)
         self.frames = [frame.convert("RGB") for frame in ImageSequence.Iterator(gif)]
         first_frame_size = self.frames[0].size
-        self.frames = [frame.resize(first_frame_size) for frame in self.frames]
+
+        self.frames = [self.crop_center(frame, 450, 450) for frame in self.frames]
 
         self.detect_moves()
 
@@ -40,6 +41,14 @@ class GIFAnalyzer:
             self.listbox.insert(tk.END, f"Move {idx + 1}: {move}")
 
         self.display_frame_at_index(0)
+
+    def crop_center(self, frame, crop_width, crop_height):
+        frame_width, frame_height = frame.size
+        left = (frame_width - crop_width) // 2
+        top = (frame_height - crop_height) // 2
+        right = (frame_width + crop_width) // 2
+        bottom = (frame_height + crop_height) // 2
+        return frame.crop((left, top, right, bottom))
 
     def detect_moves(self):
         self.moves.clear()
